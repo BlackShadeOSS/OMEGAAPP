@@ -2,6 +2,9 @@
 // Start the session
 session_start();
 
+// Include the database connection file
+require_once 'db_connect.php';
+
 // Check if the user is logged in
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     // Redirect to login page if not logged in
@@ -9,24 +12,77 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     exit;
 }
 
-// Include the database connection file
-require_once 'db_connect.php';
-
 // Check if form is submitted
 if (isset($_POST['add_post'])) {
     // Sanitize inputs to prevent XSS
     $post_content = htmlspecialchars($_POST['post_content'], ENT_QUOTES, 'UTF-8');
+    $file_id = null; // Initialize file_id as null
+
+    // Handle file upload
+    if (isset($_FILES['post_image'])) {
+        $file_name = $_FILES['post_image']['name'];
+        $file_size = $_FILES['post_image']['size'];
+        $file_tmp = $_FILES['post_image']['tmp_name'];
+        $file_type = $_FILES['post_image']['type'];
+        $file_ext = strtolower(end(explode('.', $_FILES['post_image']['name'])));
+
+        // Define allowed file types and maximum file size
+        $extensions = array("jpeg", "jpg", "png", "gif");
+        $max_file_size = 16 * 1024 * 1024; // 16MB
+
+        // Check file size and type
+        if (in_array($file_ext, $extensions) === false) {
+            echo "Error: File extension not allowed.";
+            exit;
+        }
+        if ($file_size > $max_file_size) {
+            echo "Error: File size exceeds the limit.";
+            exit;
+        }
+
+        // Generate a randomized file name with more entropy
+        $new_file_name = uniqid('', true) . '.webp';
+        $file_id = $new_file_name; // Set file_id to the new file name
+
+        // Convert the image to WebP format
+        $image = null;
+        switch ($file_ext) {
+            case 'jpeg':
+            case 'jpg':
+                $image = imagecreatefromjpeg($file_tmp);
+                break;
+            case 'png':
+                $image = imagecreatefrompng($file_tmp);
+                break;
+            case 'gif':
+                $image = imagecreatefromgif($file_tmp);
+                break;
+        }
+
+        if ($image !== null) {
+            // Save the converted image
+            $upload_dir = 'uploads/';
+            $upload_path = $upload_dir . $new_file_name;
+            imagewebp($image, $upload_path);
+            imagedestroy($image);
+        } else {
+            echo "Error: Failed to convert image to WebP format.";
+            exit;
+        }
+    }
 
     // Prepare an insert statement to prevent SQL Injection
-    $query = "INSERT INTO posts (author, content) VALUES (?, ?)";
+    // Modify the query to include the file_id
+    $query = "INSERT INTO posts (author, content, file_id) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("is", $_SESSION["id"], $post_content);
+    $stmt->bind_param("iss", $_SESSION["id"], $post_content, $file_id);
 
     if ($stmt->execute()) {
-        echo "Post added successfully.";
-        // Optionally, redirect to a page showing the post or a list of posts
-        // header("location: posts_list.php");
-        // exit;
+        // Get the ID of the newly inserted post
+        $new_post_id = $conn->insert_id;
+        // Redirect to the post site with the new post ID
+        header("location: post.php?id=" . $new_post_id);
+        exit;
     } else {
         echo "Error: " . $stmt->error;
     }
@@ -47,8 +103,9 @@ if (isset($_POST['add_post'])) {
 <body>
     <div class="add-post-container">
         <h2>Add Post</h2>
-        <form action="add_post.php" method="post">
+        <form action="add_post.php" method="post" enctype="multipart/form-data">
             <textarea name="post_content" placeholder="Your post content here" required></textarea>
+            <input type="file" name="post_image" accept="image/*">
             <button type="submit" name="add_post">Add Post</button>
         </form>
     </div>
