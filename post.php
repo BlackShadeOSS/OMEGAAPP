@@ -85,6 +85,34 @@ $stmt->close();
         </div>
     </div>
 
+    <!-- Show number of likes and button to like that will be pink if you already liked the post -->
+    <?php
+    // Fetch the number of likes for the post form the posts table
+    $query = "SELECT likes FROM posts WHERE post_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $post_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $likes = $result->fetch_assoc();
+    $stmt->close();
+
+    $query = "SELECT COUNT(*) as liked FROM likes WHERE post_id = ? AND user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $post_id, $_SESSION['id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $liked = $result->fetch_assoc();
+    $stmt->close();
+    ?>
+    <div class="like-container">
+        <p><strong>Likes:</strong> <?php echo $likes['likes']; ?></p>
+        <form action="like_post.php" method="post">
+            <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
+            <button type="submit" name="like" style="background-color: <?php echo $liked['liked'] ? 'pink' : 'white'; ?>">Like</button>
+        </form>
+    </div>
+
+
     <!-- Add a comment form at the bottom -->
     <form action="add_comment.php" method="post" enctype="multipart/form-data">
         <textarea name="comment_content" placeholder="Your comment here" required></textarea>
@@ -93,41 +121,56 @@ $stmt->close();
         <button type="submit" name="add_comment">Add Comment</button>
     </form>
 
-
-    <?php
-    // Fetch comments for the post, including nested comments
-    $query = "SELECT p1.* FROM posts p1
+    <div class="comments-container">
+        <h3>Comments:</h3>
+        <?php
+        // Fetch comments for the post, excluding the post itself
+        $query = "SELECT p1.* FROM posts p1
           LEFT JOIN posts p2 ON p1.post_id_for_comment = p2.post_id
-          WHERE p2.post_id = ? OR p1.post_id = ?
+          WHERE p2.post_id = ? AND p1.post_id != ?
           ORDER BY p1.post_id_for_comment ASC, p1.post_id ASC";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ii", $post_id, $post_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $comments = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $post_id, $post_id); // Bind the post ID twice
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $comments = $result->fetch_all(MYSQLI_ASSOC);
 
-    // Function to display comments, including nested comments
-    function displayComments($comments, $parentId = null)
-    {
-        foreach ($comments as $comment) {
-            if ($comment['post_id_for_comment'] == $parentId) {
-                echo "<div class='comment'>";
-                echo "<p>" . htmlspecialchars($comment['content'], ENT_QUOTES, 'UTF-8') . "</p>";
-                // Check if the comment has replies and display a "See more" link if it does
-                $hasReplies = array_search($comment['post_id'], array_column($comments, 'post_id_for_comment')) !== false;
-                if ($hasReplies) {
-                    echo "<a href='post.php?id=" . $comment['post_id'] . "'>See more</a>";
+        // Function to display comments, including nested comments
+        function displayComments($comments, $parentId = null, $conn)
+        {
+            foreach ($comments as $comment) {
+                if ($comment['post_id_for_comment'] == $parentId) {
+                    echo "<div class='comment'>";
+                    // Wrap the comment content and image in an anchor tag
+                    echo "<a href='post.php?id=" . $comment['post_id'] . "'>"; // Adjust 'comment.php' and the query parameter as needed
+                    echo "<p>" . htmlspecialchars($comment['content'], ENT_QUOTES, 'UTF-8') . "</p>";
+                    if ($comment['file_id'] !== null) {
+                        echo "<img src='uploads/" . htmlspecialchars($comment['file_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Comment Image'>";
+                    }
+                    echo "</a>"; // Close the anchor tag
+                    // Check if the comment has replies and display them
+
+                    $query = "SELECT p1.* FROM posts p1
+                    LEFT JOIN posts p2 ON p1.post_id_for_comment = p2.post_id
+                    WHERE p2.post_id = ? AND p1.post_id != ?
+                    ORDER BY p1.post_id_for_comment ASC, p1.post_id ASC";
+                    $stmt = $conn->prepare($query);
+                    $stmt->bind_param("ii", $comment['post_id'], $comment['post_id']);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $replies = $result->fetch_all(MYSQLI_ASSOC);
+                    if (!empty($replies)) {
+                        echo "<a href='post.php?id=" . $comment['post_id'] . "'>See More</a>";
+                    }
+                    echo "</div>";
                 }
-                echo "</div>";
-                // Recursively display replies to this comment
-                displayComments($comments, $comment['post_id']);
             }
         }
-    }
 
-    // Display all comments for the post
-    displayComments($comments);
-    ?>
+        // Display all comments for the post
+        displayComments($comments, $post_id, $conn);
+        ?>
+    </div>
 </body>
 
 </html>
