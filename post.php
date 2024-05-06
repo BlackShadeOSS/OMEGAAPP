@@ -106,9 +106,11 @@ $stmt->close();
     ?>
     <div class="like-container">
         <p><strong>Likes:</strong> <?php echo $likes['likes']; ?></p>
-        <form action="like_post.php" method="post">
+        <form id="likeForm" action="<?php echo $liked['liked'] ? 'unlike_post.php' : 'like_post.php'; ?>" method="post">
             <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
-            <button type="submit" name="like" style="background-color: <?php echo $liked['liked'] ? 'pink' : 'white'; ?>">Like</button>
+            <button type="submit" id="likeButton" name="like" style="background-color: <?php echo $liked['liked'] ? 'pink' : 'white'; ?>">
+                <?php echo $liked['liked'] ? 'Unlike' : 'Like'; ?>
+            </button>
         </form>
     </div>
 

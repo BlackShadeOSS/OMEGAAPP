@@ -1,5 +1,5 @@
 <?php
-// like_post.php
+// unlike_post.php
 
 // Start the session
 session_start();
@@ -34,21 +34,21 @@ $stmt->bind_param("ii", $post_id, $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    echo "Error: Post already liked by the user.";
+if ($result->num_rows == 0) {
+    echo "Error: Post not liked by the user.";
     echo "<script>setTimeout(function(){ window.location.href = 'post.php?id=" . $post_id . "'; }, 5000);</script>";
     exit;
 }
 
 $stmt->close();
 
-// Prepare the SQL query to increment the likes count for the post
-$query = "UPDATE posts SET likes = likes + 1 WHERE post_id = ?";
+// Prepare the SQL query to decrement the likes count for the post
+$query = "UPDATE posts SET likes = likes - 1 WHERE post_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $post_id);
 
 if ($stmt->execute()) {
-    echo "Post liked successfully.";
+    echo "Post unliked successfully.";
 } else {
     echo "Error: " . $stmt->error;
     echo "<script>setTimeout(function(){ window.location.href = 'post.php?id=" . $post_id . "'; }, 5000);</script>";
@@ -57,12 +57,12 @@ if ($stmt->execute()) {
 
 $stmt->close();
 
-$query = "INSERT INTO likes (post_id, user_id) VALUES (?, ?)";
+$query = "DELETE FROM likes WHERE post_id = ? AND user_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $post_id, $user_id);
 
 if ($stmt->execute()) {
-    echo "Post liked successfully.";
+    echo "Post unliked successfully.";
     header("location: post.php?id=" . $post_id);
 } else {
     echo "Error: " . $stmt->error;
