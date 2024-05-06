@@ -45,7 +45,15 @@ $stmt->bind_param("ii", $follower_id, $target_id);
 
 if ($stmt->execute()) {
     echo "Followed successfully.";
-    // header("location: profile.php?id=" . $target_id); // Uncomment and adjust as needed
+    if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+        // Redirect to the previous page
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit;
+    } else {
+        // Fallback: Redirect to a default page if HTTP_REFERER is not available
+        header("Location: main_page.php");
+        exit;
+    }
 } else {
     echo "Error: " . $stmt->error;
 }

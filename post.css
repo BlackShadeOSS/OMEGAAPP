@@ -1,0 +1,164 @@
+/* post.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f8fa;
+    color: #14171a;
+}
+
+.post-details-container,
+.comments-container,
+.comment-form {
+    width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+h2,
+h3 {
+    color: #1da1f2;
+}
+
+p {
+    margin-bottom: 10px;
+}
+
+.community-notes-container {
+    margin-top: 20px;
+}
+
+.like-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    background-color: #1da1f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #1a91da;
+}
+
+.comment {
+    border-bottom: 1px solid #e1e8ed;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.comment img {
+    width: 100%;
+    height: auto;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 5px;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
+}
+
+input[type="submit"] {
+    background-color: #1da1f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #1a91da;
+}
+
+.author-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.author-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.follower-count {
+    font-size: 14px;
+    color: #657786;
+    margin-right: 10px;
+}
+
+.follow-button {
+    margin-left: auto;
+}
+
+.image-container {
+    border-radius: 16px; /* Adjust the border radius as needed */
+    overflow: hidden; /* This ensures the image is clipped within the container */
+}
+
+.image-container img {
+    width: 100%; /* Adjust the width as needed */
+    height: auto; /* This maintains the aspect ratio */
+    border-radius: 16px; /* Ensures the image itself has rounded corners */
+}
+
+.post-content-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.comment-form textarea {
+    width: 100%;
+    max-width: 600px;
+    height: 100px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.comment-form input[type="file"] {
+    margin-bottom: 10px;
+}
+
+.comment-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-form button:hover {
+    background-color: #0056b3;
+}

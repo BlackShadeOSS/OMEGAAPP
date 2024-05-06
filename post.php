@@ -25,7 +25,9 @@ $post_id = $_GET['id'];
 $query = "SELECT posts.content, posts.file_id,
           COALESCE(user_account.username, firm_account.firm_name) AS author_name,
           user_account.avatar_id,
-          user_account.is_cn_admin 
+          user_account.is_cn_admin,
+          user_account.user_ac_id AS author_id,
+          'user' AS author_type
           FROM posts 
           LEFT JOIN user_account ON posts.author = user_account.user_ac_id 
           LEFT JOIN firm_account ON posts.author_firm = firm_account.firm_ac_id 
@@ -53,6 +55,24 @@ $result = $stmt->get_result();
 $community_notes = $result->fetch_all(MYSQLI_ASSOC);
 
 $stmt->close();
+
+// Check if the current user is following the author
+$query = "SELECT * FROM follow WHERE user_follower_id = ? AND " . ($post['author_type'] === 'user' ? "user_ac_id" : "firm_ac_id") . " = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("ii", $_SESSION["id"], $post['author_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$isFollowing = $result->num_rows > 0;
+$stmt->close();
+
+// Fetch the number of followers the author has
+$query = "SELECT COUNT(*) as follower_count FROM follow WHERE " . ($post['author_type'] === 'user' ? "user_ac_id" : "firm_ac_id") . " = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $post['author_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$followers = $result->fetch_assoc();
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -61,67 +81,91 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <title>Post Details</title>
-    <link rel="stylesheet" href="style.css"> <!-- Add your own CSS for styling -->
+    <link rel="stylesheet" href="post.css">
 </head>
 
 <body>
     <div class="post-details-container">
-        <h2>Post Details</h2>
-        <p><strong>Author:</strong> <?php echo htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8'); ?></p>
-        <?php if ($post['avatar_id'] !== null) : ?>
-            <p><strong>Author Avatar:</strong> <img src="uploads/<?php echo htmlspecialchars($post['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8'); ?>" alt="Author Avatar"></p>
-        <?php endif; ?>
+        <h2>Post</h2>
+        <div class="author-details">
+            <img class="author-avatar" src="uploads/<?php echo htmlspecialchars($post['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8'); ?>" alt="Author Avatar">
+            <span class="author-name"><?php echo htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <span class="follower-count">(<?php echo $followers['follower_count']; ?> followers)</span>
+            <?php if ($isFollowing) : ?>
+                <form action="unfollow.php" method="post" class="follow-button">
+                    <input type="hidden" name="target_id" value="<?php echo $post['author_id']; ?>">
+                    <input type="hidden" name="target_type" value="<?php echo $post['author_type']; ?>">
+                    <button type="submit">Unfollow</button>
+                </form>
+            <?php else : ?>
+                <form action="follow.php" method="post" class="follow-button">
+                    <input type="hidden" name="target_id" value="<?php echo $post['author_id']; ?>">
+                    <input type="hidden" name="target_type" value="<?php echo $post['author_type']; ?>">
+                    <button type="submit">Follow</button>
+                </form>
+            <?php endif; ?>
+        </div>
+
         <p><strong>Content:</strong> <?php echo htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8'); ?></p>
         <!-- Display file if file_id is not null -->
         <?php if ($post['file_id'] !== null) : ?>
-            <p><strong>File:</strong> <img src="uploads/<?php echo htmlspecialchars($post['file_id'] . ".webp", ENT_QUOTES, 'UTF-8'); ?>" alt="Post File"></p>
+            <div class="image-container">
+                <img src="uploads/<?php echo htmlspecialchars($post['file_id'] . ".webp", ENT_QUOTES, 'UTF-8'); ?>" alt="Post File">
+            </div>
         <?php endif; ?>
         <!-- Display community notes -->
         <div class="community-notes-container">
-            <h3>Community Notes:</h3>
-            <?php foreach ($community_notes as $note) : ?>
-                <p><?php echo htmlspecialchars($note['content'], ENT_QUOTES, 'UTF-8'); ?></p>
-            <?php endforeach; ?>
+            <?php
+            if (!empty($community_notes)) : ?>
+                <div class="community-notes-container">
+                    <h3>Community Notes:</h3>
+                    <?php foreach ($community_notes as $note) : ?>
+                        <p><?php echo htmlspecialchars($note['content'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+        $query = "SELECT likes FROM posts WHERE post_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $post_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $likes = $result->fetch_assoc();
+        $stmt->close();
+
+        $query = "SELECT COUNT(*) as liked FROM likes WHERE post_id = ? AND user_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $post_id, $_SESSION['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $liked = $result->fetch_assoc();
+        $stmt->close();
+        ?>
+        <div class="like-container">
+            <p><strong>Likes:</strong> <?php echo $likes['likes']; ?></p>
+            <form id="likeForm" action="<?php echo $liked['liked'] ? 'unlike_post.php' : 'like_post.php'; ?>" method="post">
+                <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
+                <button type="submit" id="likeButton" name="like" style="background-color: <?php echo $liked['liked'] ? 'pink' : 'white'; ?>">
+                    <?php echo $liked['liked'] ? 'Unlike' : 'Like'; ?>
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Show number of likes and button to like that will be pink if you already liked the post -->
-    <?php
-    // Fetch the number of likes for the post form the posts table
-    $query = "SELECT likes FROM posts WHERE post_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $post_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $likes = $result->fetch_assoc();
-    $stmt->close();
 
-    $query = "SELECT COUNT(*) as liked FROM likes WHERE post_id = ? AND user_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ii", $post_id, $_SESSION['id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $liked = $result->fetch_assoc();
-    $stmt->close();
-    ?>
-    <div class="like-container">
-        <p><strong>Likes:</strong> <?php echo $likes['likes']; ?></p>
-        <form id="likeForm" action="<?php echo $liked['liked'] ? 'unlike_post.php' : 'like_post.php'; ?>" method="post">
-            <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
-            <button type="submit" id="likeButton" name="like" style="background-color: <?php echo $liked['liked'] ? 'pink' : 'white'; ?>">
-                <?php echo $liked['liked'] ? 'Unlike' : 'Like'; ?>
-            </button>
+
+
+    <!-- Comment form-->
+    <div class="comment-form">
+        <form action="add_comment.php" method="post" enctype="multipart/form-data">
+            <textarea name="comment_content" placeholder="Your comment here" required></textarea>
+            <input type="file" name="comment_image" accept="image/*">
+            <input type="hidden" name="parent_post_id" value="<?php echo $post_id; ?>">
+            <button type="submit" name="add_comment">Add Comment</button>
         </form>
     </div>
 
-
-    <!-- Add a comment form at the bottom -->
-    <form action="add_comment.php" method="post" enctype="multipart/form-data">
-        <textarea name="comment_content" placeholder="Your comment here" required></textarea>
-        <input type="file" name="comment_image" accept="image/*">
-        <input type="hidden" name="parent_post_id" value="<?php echo $post_id; ?>">
-        <button type="submit" name="add_comment">Add Comment</button>
-    </form>
 
     <div class="comments-container">
         <h3>Comments:</h3>
