@@ -47,7 +47,7 @@ if (isset($_POST['register'])) {
             $new_file_name = uniqid('', true) . '.webp';
             $avatar_id = $new_file_name; // Set avatar_id to the new file name
 
-            // Convert the image to WebP format
+            // Convert the image to WebP format and resize to 250x250 pixels
             $image = null;
             switch ($file_ext) {
                 case 'jpeg':
@@ -63,11 +63,14 @@ if (isset($_POST['register'])) {
             }
 
             if ($image !== null) {
-                // Save the converted image
+                // Resize the image to 250x250 pixels
+                $resizedImage = imagescale($image, 250, 250, IMG_BICUBIC);
+
+                // Save the resized image
                 $upload_dir = 'uploads/';
                 $upload_path = $upload_dir . $new_file_name;
-                imagewebp($image, $upload_path);
-                imagedestroy($image);
+                imagewebp($resizedImage, $upload_path);
+                imagedestroy($resizedImage);
             } else {
                 echo "Error: Failed to convert image to WebP format.";
                 exit;
@@ -105,22 +108,43 @@ if (isset($_POST['register'])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="style.css"> <!-- Add your own CSS for styling -->
+    <link rel="stylesheet" href="register.css"> <!-- Add your own CSS for styling -->
 </head>
 
 <body>
     <div class="register-container">
+        <h1>Ωmega App</h1>
         <h2>Register</h2>
         <form action="register.php" method="post" enctype="multipart/form-data">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <input type="password" name="confirm_password" placeholder="Confirm Password" required>
             <input type="email" name="email" placeholder="Email" required>
-            <input type="file" name="profile_picture" accept="image/*">
+            <div class="profilePicContainer">
+                <label for="profile_picture" class="custom-file-upload">Select Profile Picture</label>
+                <input type="file" id="profile_picture" name="profile_picture" style="display: none;" onchange="previewImage(event)">
+                <img id="imagePreview" src="#" alt="Profile Picture Preview" style="display: none; width: 250px; height: 250px;">
+            </div>
+
             <button type="submit" name="register">Register</button>
         </form>
+
+        <p>Already have an account? <a href="login.php">Login here</a></p>
     </div>
+
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById('imagePreview');
+                output.src = reader.result;
+                output.style.display = 'block'; // Display the image preview
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
 </body>
 
 </html>

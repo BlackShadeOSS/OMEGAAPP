@@ -20,7 +20,7 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
-    <link rel="stylesheet" href="style.css"> <!-- Add your own CSS for styling -->
+    <link rel="stylesheet" href="main-page.css"> <!-- Add your own CSS for styling -->
 </head>
 
 <body>

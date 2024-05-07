@@ -52,18 +52,22 @@ if (isset($_POST['login'])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="style.css"> <!-- Add your own CSS for styling -->
+    <link rel="stylesheet" href="login.css">
 </head>
 
 <body>
     <div class="login-container">
+        <h1>Ωmega App</h1>
         <h2>Login</h2>
         <form action="login.php" method="post">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit" name="login">Login</button>
         </form>
+
+        <p>Don't have an account? <a href="register.php">Register here</a></p>
     </div>
 </body>
 

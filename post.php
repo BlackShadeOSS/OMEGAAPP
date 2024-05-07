@@ -80,6 +80,7 @@ $stmt->close();
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Details</title>
     <link rel="stylesheet" href="post.css">
 </head>
@@ -152,9 +153,6 @@ $stmt->close();
             </form>
         </div>
     </div>
-
-
-
 
     <!-- Comment form-->
     <div class="comment-form">
