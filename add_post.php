@@ -55,7 +55,16 @@ if (isset($_POST['add_post'])) {
                 $image = imagecreatefrompng($file_tmp);
                 break;
             case 'gif':
+                // Handle GIFs with a palette by converting them to PNG first
                 $image = imagecreatefromgif($file_tmp);
+                if (imageistruecolor($image)) {
+                    // If the GIF is not a palette image, proceed as usual
+                    break;
+                }
+                // Convert the palette-based GIF to PNG
+                $pngImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+                imagecopy($pngImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+                $image = $pngImage;
                 break;
         }
 
@@ -98,18 +107,33 @@ if (isset($_POST['add_post'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Post</title>
-    <link rel="stylesheet" href="style.css"> <!-- Add your own CSS for styling -->
+    <link rel="stylesheet" href="add_post.css">
 </head>
 
 <body>
     <div class="add-post-container">
+        <h1><a href="./main-page.php">Ωmega App</a></h1>
         <h2>Add Post</h2>
         <form action="add_post.php" method="post" enctype="multipart/form-data">
             <textarea name="post_content" placeholder="Your post content here" required></textarea>
-            <input type="file" name="post_image" accept="image/*">
+            <input type="file" id="post_image" name="post_image" accept="image/*" onchange="previewImage(event)">
+            <label for="post_image" class="custom-file-upload">Upload Image</label>
+            <img id="imagePreview" src="#" alt="Image Preview" style="display:none; max-width: 100%; height: auto;">
             <button type="submit" name="add_post">Add Post</button>
         </form>
     </div>
+
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById('imagePreview');
+                output.src = reader.result;
+                output.style.display = 'block'; // Display the image preview
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
 </body>
 
 </html>

@@ -87,11 +87,12 @@ $stmt->close();
 
 <body>
     <div class="post-details-container">
+        <h1><a href="./main-page.php">Ωmega App</a></h1>
         <h2>Post</h2>
         <div class="author-details">
             <img class="author-avatar" src="uploads/<?php echo htmlspecialchars($post['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8'); ?>" alt="Author Avatar">
             <span class="author-name"><?php echo htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8'); ?></span>
-            <span class="follower-count">(<?php echo $followers['follower_count']; ?> followers)</span>
+            <span class="follower-count"> (<?php echo $followers['follower_count']; ?> followers)</span>
             <?php if ($isFollowing) : ?>
                 <form action="unfollow.php" method="post" class="follow-button">
                     <input type="hidden" name="target_id" value="<?php echo $post['author_id']; ?>">
@@ -107,7 +108,7 @@ $stmt->close();
             <?php endif; ?>
         </div>
 
-        <p><strong>Content:</strong> <?php echo htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8'); ?></p>
+        <p><?php echo htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8'); ?></p>
         <!-- Display file if file_id is not null -->
         <?php if ($post['file_id'] !== null) : ?>
             <div class="image-container">
@@ -158,8 +159,10 @@ $stmt->close();
     <div class="comment-form">
         <form action="add_comment.php" method="post" enctype="multipart/form-data">
             <textarea name="comment_content" placeholder="Your comment here" required></textarea>
-            <input type="file" name="comment_image" accept="image/*">
+            <label for="comment_image" class="file-upload-label">Upload Image</label>
+            <input type="file" name="comment_image" id="comment_image" class="file-upload" accept="image/*" onchange="previewImage(event)">
             <input type="hidden" name="parent_post_id" value="<?php echo $post_id; ?>">
+            <img id="imagePreview" src="#" alt="Picture Preview">
             <button type="submit" name="add_comment">Add Comment</button>
         </form>
     </div>
@@ -168,13 +171,17 @@ $stmt->close();
     <div class="comments-container">
         <h3>Comments:</h3>
         <?php
-        // Fetch comments for the post, excluding the post itself
-        $query = "SELECT p1.* FROM posts p1
-          LEFT JOIN posts p2 ON p1.post_id_for_comment = p2.post_id
-          WHERE p2.post_id = ? AND p1.post_id != ?
+        // Adjust the SQL query to also fetch the author's information for comments
+        $query = "SELECT p1.*, COALESCE(user_account.username, firm_account.firm_name) AS author_name, user_account.avatar_id, COUNT(follow.user_follower_id) AS follower_count
+          FROM posts p1
+          LEFT JOIN user_account ON p1.author = user_account.user_ac_id
+          LEFT JOIN firm_account ON p1.author_firm = firm_account.firm_ac_id
+          LEFT JOIN follow ON follow.user_ac_id = user_account.user_ac_id
+          WHERE p1.post_id_for_comment = ?
+          GROUP BY p1.post_id
           ORDER BY p1.post_id_for_comment ASC, p1.post_id ASC";
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("ii", $post_id, $post_id); // Bind the post ID twice
+        $stmt->bind_param("i", $post_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $comments = $result->fetch_all(MYSQLI_ASSOC);
@@ -182,32 +189,46 @@ $stmt->close();
         // Function to display comments, including nested comments
         function displayComments($comments, $parentId = null, $conn)
         {
-            foreach ($comments as $comment) {
-                if ($comment['post_id_for_comment'] == $parentId) {
-                    echo "<div class='comment'>";
-                    // Wrap the comment content and image in an anchor tag
-                    echo "<a href='post.php?id=" . $comment['post_id'] . "'>"; // Adjust 'comment.php' and the query parameter as needed
-                    echo "<p>" . htmlspecialchars($comment['content'], ENT_QUOTES, 'UTF-8') . "</p>";
-                    if ($comment['file_id'] !== null) {
-                        echo "<img src='uploads/" . htmlspecialchars($comment['file_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Comment Image'>";
-                    }
-                    echo "</a>"; // Close the anchor tag
-                    // Check if the comment has replies and display them
+            if (!empty($comments)) {
 
-                    $query = "SELECT p1.* FROM posts p1
+                foreach ($comments as $comment) {
+                    if ($comment['post_id_for_comment'] == $parentId) {
+                        echo "<div class='comment'>";
+                        echo "<div class='author-info'>";
+                        echo "<img src='uploads/" . htmlspecialchars($comment['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Author Avatar'>";
+                        echo "<p> " . htmlspecialchars($comment['author_name'], ENT_QUOTES, 'UTF-8') . "</p>";
+                        echo "<span class='follower-count'>(" . $comment['follower_count'] . " followers)</span>";
+                        echo "<form action='follow.php' method='post' class='follow-button'>";
+                        echo "<input type='hidden' name='target_id' value='" . $comment['author'] . "'>";
+                        echo "<input type='hidden' name='target_type' value='user'>"; // Adjust based on whether the author is a user or firm
+                        echo "<button type='submit'>Follow</button>";
+                        echo "</form>";
+                        echo "</div>";
+                        echo "<a href='post.php?id=" . $comment['post_id'] . "'>"; // Adjust 'comment.php' and the query parameter as needed
+                        echo "<p>" . htmlspecialchars($comment['content'], ENT_QUOTES, 'UTF-8') . "</p>";
+                        if ($comment['file_id'] !== null) {
+                            echo "<img src='uploads/" . htmlspecialchars($comment['file_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Comment Image'>";
+                        }
+                        echo "<a/>"; // Close the anchor tag
+                        // Check if the comment has replies and display them
+
+                        $query = "SELECT p1.* FROM posts p1
                     LEFT JOIN posts p2 ON p1.post_id_for_comment = p2.post_id
                     WHERE p2.post_id = ? AND p1.post_id != ?
                     ORDER BY p1.post_id_for_comment ASC, p1.post_id ASC";
-                    $stmt = $conn->prepare($query);
-                    $stmt->bind_param("ii", $comment['post_id'], $comment['post_id']);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    $replies = $result->fetch_all(MYSQLI_ASSOC);
-                    if (!empty($replies)) {
-                        echo "<a href='post.php?id=" . $comment['post_id'] . "'>See More</a>";
+                        $stmt = $conn->prepare($query);
+                        $stmt->bind_param("ii", $comment['post_id'], $comment['post_id']);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $replies = $result->fetch_all(MYSQLI_ASSOC);
+                        if (!empty($replies)) {
+                            echo "<a href='post.php?id=" . $comment['post_id'] . "'>See More</a>";
+                        }
+                        echo "</div>";
                     }
-                    echo "</div>";
                 }
+            } else {
+                echo '<p style="text-align: center;">No comments found!</p>';
             }
         }
 
@@ -215,6 +236,18 @@ $stmt->close();
         displayComments($comments, $post_id, $conn);
         ?>
     </div>
+
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById('imagePreview');
+                output.src = reader.result;
+                output.style.display = 'block'; // Display the image preview
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
 </body>
 
 </html>

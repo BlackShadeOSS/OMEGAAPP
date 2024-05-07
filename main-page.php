@@ -20,12 +20,12 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
-    <link rel="stylesheet" href="main-page.css"> <!-- Add your own CSS for styling -->
+    <link rel="stylesheet" href="main-page.css">
 </head>
 
 <body>
     <div class="main-page-container">
-        <h2>Newest 25 Posts</h2>
+        <h1>Welcome to the Ωmega App</h1>
         <?php while ($post = $result->fetch_assoc()) : ?>
             <div class="post">
                 <p><?php echo htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8'); ?></p>

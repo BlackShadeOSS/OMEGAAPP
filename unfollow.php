@@ -28,6 +28,32 @@ $target_id = $_POST['target_id'];
 // Determine the type of the target (user or firm)
 $target_type = isset($_POST['target_type']) ? $_POST['target_type'] : 'user'; // Default to 'user'
 
+// Check if user is following the target
+$query = "SELECT * FROM follow WHERE user_follower_id = ? AND ";
+if ($target_type === 'user') {
+    // User to user unfollow
+    $query .= "user_ac_id = ?";
+} elseif ($target_type === 'firm') {
+    // User to firm unfollow
+    $query .= "firm_ac_id = ?";
+} else {
+    echo "Error: Invalid target type.";
+    exit;
+}
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param("ii", $follower_id, $target_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    echo "Error: You are not following this target.";
+    exit;
+}
+
+$stmt->close();
+
+
 // Prepare the SQL query for unfollowing
 if ($target_type === 'user') {
     // User to user unfollow

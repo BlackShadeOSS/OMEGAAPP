@@ -58,7 +58,16 @@ if (isset($_POST['register'])) {
                     $image = imagecreatefrompng($file_tmp);
                     break;
                 case 'gif':
+                    // Handle GIFs with a palette by converting them to PNG first
                     $image = imagecreatefromgif($file_tmp);
+                    if (imageistruecolor($image)) {
+                        // If the GIF is not a palette image, proceed as usual
+                        break;
+                    }
+                    // Convert the palette-based GIF to PNG
+                    $pngImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+                    imagecopy($pngImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+                    $image = $pngImage;
                     break;
             }
 

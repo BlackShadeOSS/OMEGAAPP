@@ -1,28 +1,99 @@
-/* post.css */
-
 body {
     font-family: Arial, sans-serif;
-    background-color: #f5f8fa;
-    color: #14171a;
+    background-color: #15202b;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+}
+
+h1 {
+    text-align: center;
+    color: #1da1f2;
+    margin-bottom: 20px;
+}
+
+h1 a {
+    color: #1da1f2;
+    text-decoration: none;
+}
+
+h2 {
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 20px;
 }
 
 .post-details-container,
-.comments-container,
-.comment-form {
-    width: 600px;
-    margin: 0 auto;
+.comment-form,
+.comments-container {
+    background-color: #252f3a;
     padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 80%;
+    max-width: 800px;
+    margin: 20px auto;
 }
 
-h2,
-h3 {
-    color: #1da1f2;
+.post-details-container h1,
+.post-details-container h2,
+.comments-container h3 {
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 20px;
 }
 
-p {
-    margin-bottom: 10px;
+.author-details {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.author-name,
+.follower-count {
+    color: #ffffff;
+}
+
+.follower-count {
+    margin-left: 10px;
+}
+
+.follow-button {
+    margin-left: auto;
+}
+
+.follow-button button {
+    background-color: #1da1f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.follow-button button:hover {
+    background-color: #1a91da;
+}
+
+.image-container img,
+.comments-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.comments-container img {
+    width: 100%;
+    object-fit: cover;
+    max-height: 300px;
 }
 
 .community-notes-container {
@@ -31,134 +102,152 @@ p {
 
 .like-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-button {
-    background-color: #1da1f2;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #1a91da;
-}
-
-.comment {
-    border-bottom: 1px solid #e1e8ed;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-}
-
-.comment img {
-    width: 100%;
-    height: auto;
-}
-
-textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #e1e8ed;
-    border-radius: 5px;
-}
-
-input[type="file"] {
-    margin-bottom: 10px;
-}
-
-input[type="submit"] {
-    background-color: #1da1f2;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-input[type="submit"]:hover {
-    background-color: #1a91da;
-}
-
-.author-details {
-    display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 20px;
 }
 
-.author-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
-}
-
-.author-name {
+.like-container button {
+    background-color: #ffffff; /* Set the button's background color to white */
+    color: #000000; /* Set the button's text color to black */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     font-size: 16px;
-    font-weight: bold;
-    margin-right: 10px;
+    padding: 5px 10px;
+    transition: background-color 0.7s; /* Add a transition effect for the background color */
 }
 
-.follower-count {
-    font-size: 14px;
-    color: #657786;
-    margin-right: 10px;
+.like-container button:hover {
+    background-color: #002ead; /* Change the background color on hover */
 }
 
-.follow-button {
-    margin-left: auto;
+.like-container button:active {
+    background-color: #ffbf00; /* Change the background color when the button is clicked */
 }
 
-.image-container {
-    border-radius: 16px; /* Adjust the border radius as needed */
-    overflow: hidden; /* This ensures the image is clipped within the container */
-}
-
-.image-container img {
-    width: 100%; /* Adjust the width as needed */
-    height: auto; /* This maintains the aspect ratio */
-    border-radius: 16px; /* Ensures the image itself has rounded corners */
-}
-
-.post-content-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.comment-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.comment-form textarea {
-    width: 100%;
-    max-width: 600px;
-    height: 100px;
-    margin-bottom: 10px;
+.comment-form textarea,
+.comment-form input[type="file"] {
+    width: 97.25%;
     padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccd0d5;
     border-radius: 5px;
+    font-size: 16px;
+    background-color: #252f3a;
+    color: #ffffff;
 }
 
 .comment-form input[type="file"] {
     margin-bottom: 10px;
 }
 
-.comment-form button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
+.comment-form button[type="submit"] {
+    padding: 10px;
+    background-color: #1da1f2;
+    color: #ffffff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 20px;
 }
 
-.comment-form button:hover {
-    background-color: #0056b3;
+.comment-form button[type="submit"]:hover {
+    background-color: #1a91da;
+}
+
+.comments-container .comment {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .post-details-container,
+    .comment-form,
+    .comments-container {
+        width: 90%;
+    }
+}
+
+.file-upload {
+    display: none; /* Hide the default file input */
+}
+
+.file-upload-label {
+    display: block;
+    padding: 10px;
+    background-color: #1da1f2; /* Match the color of your site */
+    color: #ffffff;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 97.25%;
+    text-align: center;
+}
+
+#imagePreview {
+    display: none;
+    width: 100%;
+    height: auto;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    object-fit: cover;
+    margin: auto;
+    margin-top: 10px;
+    max-height: 300px;
+    box-sizing: border-box;
+}
+
+.comments-container .comment .author-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.comments-container .comment .author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.comments-container .comment .author-name,
+.comments-container .comment .follower-count {
+    color: #ffffff;
+}
+
+.comments-container .comment .follow-button {
+    margin-left: auto;
+}
+
+.comments-container .comment .follow-button button {
+    background-color: #1da1f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.comments-container .comment .follow-button button:hover {
+    background-color: #1a91da;
+}
+
+.comments-container .author-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.comments-container .author-info img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.comment a {
+    color: #ffffff;
+    text-decoration: none;
 }
