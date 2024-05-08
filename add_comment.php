@@ -19,8 +19,9 @@ if (isset($_POST['add_comment'])) {
     $parent_post_id = $_POST['parent_post_id']; // Get the parent post ID
     $file_id = null; // Initialize file_id as null
 
-    // Handle file upload for comments
-    if (isset($_FILES['comment_image'])) {
+    // Check if a file is uploaded
+    if (isset($_FILES['comment_image']) && $_FILES['comment_image']['error'] == UPLOAD_ERR_OK) {
+        // Handle file upload
         $file_name = $_FILES['comment_image']['name'];
         $file_size = $_FILES['comment_image']['size'];
         $file_tmp = $_FILES['comment_image']['tmp_name'];

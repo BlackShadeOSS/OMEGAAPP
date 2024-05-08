@@ -43,10 +43,26 @@ h2 {
     margin-bottom: 20px;
 }
 
+.post-details-container p {
+    color: #ffffff;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 60px;
+}
+
+.parent-post {
+    margin-bottom: 20px;
+}
+
+.parent-post .image-container img {
+    width: 100%;
+    object-fit: cover;
+    max-height: 250px;
+}
+
 .author-details {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
 }
 
 .author-avatar {
@@ -83,6 +99,10 @@ h2 {
     background-color: #1a91da;
 }
 
+.image-container {
+    margin-left: 60px;
+}
+
 .image-container img,
 .comments-container img {
     max-width: 100%;
@@ -108,22 +128,29 @@ h2 {
 }
 
 .like-container button {
-    background-color: #ffffff; /* Set the button's background color to white */
     color: #000000; /* Set the button's text color to black */
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
     padding: 5px 10px;
-    transition: background-color 0.7s; /* Add a transition effect for the background color */
+    transition: background-color 0.5s; /* Add a transition effect for the background color */
 }
 
-.like-container button:hover {
-    background-color: #002ead; /* Change the background color on hover */
+.like-container button.like {
+    background-color: #ffffff; /* Set the background color for the like button */
 }
 
-.like-container button:active {
-    background-color: #ffbf00; /* Change the background color when the button is clicked */
+.like-container button.unlike {
+    background-color: #ff0000; /* Set the background color for the unlike button */
+}
+
+.like-container button.like:hover {
+    background-color: #ff0000; /* Change the background color on hover */
+}
+
+.like-container button.unlike:hover {
+    background-color: #ffffff; /* Change the background color on hover */
 }
 
 .comment-form textarea,
@@ -250,4 +277,65 @@ h2 {
 .comment a {
     color: #ffffff;
     text-decoration: none;
+}
+
+.comment {
+    border-bottom: #ccd0d5 1px solid;
+}
+
+.cn-form {
+    margin-top: 20px;
+}
+
+.cn-form textarea,
+.cn-form input[type="file"] {
+    width: 97.25%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccd0d5;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #252f3a;
+    color: #ffffff;
+}
+
+.cn-form input[type="file"] {
+    margin-bottom: 10px;
+}
+
+.cn-form button[type="submit"] {
+    padding: 10px;
+    background-color: #1da1f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.cn-form button[type="submit"]:hover {
+    background-color: #1a91da;
+}
+
+.seeMore {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.community-notes-container p {
+    margin-left: 0px;
+}
+
+.community-notes-container {
+    margin-left: 60px;
+    box-sizing: border-box;
+    border: 1px solid #ccd0d5;
+    border-radius: 5px;
+    padding-left: 25px;
 }

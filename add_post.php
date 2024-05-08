@@ -18,8 +18,9 @@ if (isset($_POST['add_post'])) {
     $post_content = htmlspecialchars($_POST['post_content'], ENT_QUOTES, 'UTF-8');
     $file_id = null; // Initialize file_id as null
 
-    // Handle file upload
-    if (isset($_FILES['post_image'])) {
+    // Check if a file is uploaded
+    if (isset($_FILES['post_image']) && $_FILES['post_image']['error'] == UPLOAD_ERR_OK) {
+        // Handle file upload
         $file_name = $_FILES['post_image']['name'];
         $file_size = $_FILES['post_image']['size'];
         $file_tmp = $_FILES['post_image']['tmp_name'];

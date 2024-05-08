@@ -63,7 +63,15 @@ $stmt->bind_param("ii", $post_id, $user_id);
 
 if ($stmt->execute()) {
     echo "Post unliked successfully.";
-    header("location: post.php?id=" . $post_id);
+    if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+        // Redirect to the previous page
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit;
+    } else {
+        // Fallback: Redirect to a default page if HTTP_REFERER is not available
+        header("location: post.php?id=" . $post_id);
+        exit;
+    }
 } else {
     echo "Error: " . $stmt->error;
     echo "<script>setTimeout(function(){ window.location.href = 'post.php?id=" . $post_id . "'; }, 5000);</script>";
