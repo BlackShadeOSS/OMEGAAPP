@@ -3,9 +3,6 @@ body {
     background-color: #15202b;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     color: #ffffff;
 }
 
@@ -16,6 +13,7 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     width: 80%;
     max-width: 800px;
+    margin: 20px auto;
 }
 
 .main-page-container h2 {

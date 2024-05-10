@@ -47,10 +47,11 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <title>Profile</title>
-    <link rel="stylesheet" href="style.css"> <!-- Add your own CSS for styling -->
+    <link rel="stylesheet" href="navbar.css">
 </head>
 
 <body>
+    <?php include 'navbar.php'; ?>
     <div class="profile-container">
         <h2>Profile</h2>
         <div class="profile-info">
