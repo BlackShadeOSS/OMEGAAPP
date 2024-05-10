@@ -1,0 +1,141 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #15202b;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+}
+
+.profile-container {
+    background-color: #252f3a;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 80%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.profile-container h2 {
+    text-align: center;
+    color: #1da1f2;
+    margin-bottom: 20px;
+}
+
+.profile-container p {
+    color: #ffffff;
+    margin-top: 5px;
+}
+
+.profile-container img {
+    width: 125px;
+    height: 125px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.profile-container.follower-count {
+    margin-left: 10px;
+}
+
+.profile-container.follow-button {
+    margin-left: auto;
+}
+
+.profile-container.follow-button button {
+    background-color: #1da1f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.profile-container.follow-button button:hover {
+    background-color: #1a91da;
+}
+
+@media (max-width: 600px) {
+    .profile-container {
+        width: 90%;
+    }
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+}
+
+.profile-header img {
+    margin-right: 10px;
+}
+
+.profile-header h1 {
+    margin: 0;
+}
+
+.follow-button {
+    margin-left: auto;
+}
+
+.follow-button button {
+    background-color: #1da1f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.follow-button button:hover {
+    background-color: #1a91da;
+}
+
+.profile-post-selector {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 50px;
+    border: 3px solid #ffffff;
+    border-radius: 10px 10px 0 0;
+    width: 100%;
+}
+
+.profile-post-selector a {
+    color: #ffffff;
+    text-decoration: none;
+    width: 50%;
+    text-align: center;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.profile-post-selector a:first-child {
+    border-top-left-radius: 7.5px;
+}
+
+.profile-post-selector a:last-child {
+    border-top-right-radius: 7.5px;
+}
+
+.profile-post-selector .active {
+    background-color: #1987cc;
+}
+
+.profile-post-selector a:hover {
+    background-color: #1da1f2;
+}
+
+.profile-post-sorter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 3px solid #ffffff;
+    border-top: none;
+    width: 95%;
+}
