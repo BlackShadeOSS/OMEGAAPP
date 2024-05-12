@@ -25,15 +25,37 @@ if (isset($_GET['show'])) {
         default:
             $show = 'posts';
     }
+} else {
+    $show = 'posts';
 }
 
-function displayPostDetails($postId, $conn, $session_id, $is_parent)
+if (isset($_GET['sort'])) {
+    switch ($_GET['sort']) {
+        case 'newest':
+            $sort = 'newest';
+            break;
+        case 'oldest':
+            $sort = 'oldest';
+            break;
+        case 'most-liked':
+            $sort = 'most-liked';
+            break;
+        case 'least-liked':
+            $sort = 'least-liked';
+            break;
+        default:
+            $sort = 'newest';
+    }
+} else {
+    $sort = 'newest';
+}
+
+function displayPostDetails($postId, $conn)
 {
     // Prepare and execute the SQL query to fetch the post details
     $query = "SELECT posts.content, posts.file_id,
               COALESCE(user_account.username, firm_account.firm_name) AS author_name,
               user_account.avatar_id,
-              user_account.is_cn_admin,
               user_account.user_ac_id AS author_id,
               'user' AS author_type,
               COUNT(follow.user_follower_id) AS follower_count,
@@ -57,45 +79,30 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
     $result = $stmt->get_result();
     $community_notes = $result->fetch_all(MYSQLI_ASSOC);
 
-    // Check if user is cn admin
-    $query = "SELECT is_cn_admin FROM user_account WHERE user_ac_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $session_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $is_cn_admin = $result->fetch_assoc()['is_cn_admin'];
-    $stmt->close();
 
     // Check if the post exists
     if ($post) {
         // Display the author details
-        echo "<div class='post";
-        if ($is_parent) {
-            echo " parent-post";
-        }
-        echo "'>";
+        echo "<div class='post'>";
         echo "<div class='author-details'>";
         echo "<img class='author-avatar' src='uploads/" . htmlspecialchars($post['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Author Avatar'>";
         echo "<span class='author-name'>" . htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8') . "</span>";
         echo "<span class='follower-count'> (" . $post['follower_count'] . " followers)</span>";
-        if ($post['is_following']) {
-            echo '<form action="unfollow.php" method="post" class="follow-button">';
-            echo    '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
-            echo    '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
-            echo    '<button type="submit">Unfollow</button>';
-            echo '</form>';
-        } else {
-            echo '<form action="follow.php" method="post" class="follow-button">';
-            echo '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
-            echo '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
-            echo '<button type="submit">Follow</button>';
-            echo '</form>';
-        }
+        // if ($post['is_following']) {
+        //     echo '<form action="unfollow.php" method="post" class="follow-button">';
+        //     echo    '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
+        //     echo    '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
+        //     echo    '<button type="submit">Unfollow</button>';
+        //     echo '</form>';
+        // } else {
+        //     echo '<form action="follow.php" method="post" class="follow-button">';
+        //     echo '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
+        //     echo '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
+        //     echo '<button type="submit">Follow</button>';
+        //     echo '</form>';
+        // }
         echo "</div>";
-
-        if ($is_parent) {
-            echo "<a href='post.php?id=" . $postId . "'>";
-        }
+        echo "<a href='post.php?id=" . $postId . "'>";
 
         // Display the post content
         echo "<p>" . htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8') . "</p>";
@@ -106,10 +113,7 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
             echo "<img src='uploads/" . htmlspecialchars($post['file_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Post File'>";
             echo "</div>";
         }
-
-        if ($is_parent) {
-            echo "</a>";
-        }
+        echo "</a>";
 
         // Display community notes
         if (!empty($community_notes)) {
@@ -149,17 +153,6 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
         echo '</form>';
         echo '</div>';
 
-        // Display cn form if not parent post
-        if (!$is_parent && $is_cn_admin) {
-            echo '<div class="cn-form">';
-            echo '<form action="add_community_note.php" method="post">';
-            echo '<textarea name="note_content" placeholder="Add a community note"></textarea>';
-            echo '<input type="hidden" name="post_id" value="' . $postId . '">';
-            echo '<button type="submit" name="add_community_note">Add Community Note</button>';
-            echo '</form>';
-            echo '</div>';
-        }
-
         echo "</div>";
     } else {
         echo "<p>Post not found.</p>";
@@ -167,7 +160,6 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
 
     $stmt->close();
 }
-?>
 ?>
 
 <!DOCTYPE html>
@@ -214,7 +206,7 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
             ?>
             <div class="profile-header">
                 <?php if ($user['avatar_id'] !== null) : ?>
-                    <img src="uploads/<?php echo htmlspecialchars($user['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8'); ?>" alt="User Avatar">
+                    <img src="uploads/<?php echo htmlspecialchars($user['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8'); ?>" alt="User Avatar" class="profile-pic">
                 <?php endif; ?>
                 <div>
                     <h1><?php echo htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8'); ?></h1>
@@ -254,71 +246,59 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
             <a href="./profile.php?id=<?php echo $user_id; ?>&show=postscom" <?php if ($show == 'postscom') echo 'class="active"' ?>>Posts & Comments</a>
         </div>
         <div class="profile-post-sorter">
-            <form action="profile.php?id=<?php echo $user_id; ?>" method="post">
+            <form action="profile.php?id=<?php echo $user_id; ?>" method="get">
                 <label for="sort">Sort by:</label>
+                <input type="hidden" name="id" value="<?php echo $user_id; ?>">
+                <input type="hidden" name="show" value="<?php echo $show; ?>">
                 <select name="sort" id="sort">
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="most-liked">Most Liked</option>
-                    <option value="least-liked">Least Liked</option>
+                    <option value="newest" <?php if ($sort == 'newest') echo "selected" ?>>Newest</option>
+                    <option value="oldest" <?php if ($sort == 'oldest') echo "selected" ?>>Oldest</option>
+                    <option value="most-liked" <?php if ($sort == 'most-liked') echo "selected" ?>>Most Liked</option>
+                    <option value="least-liked" <?php if ($sort == 'least-liked') echo "selected" ?>>Least Liked</option>
                 </select>
                 <button type="submit">Sort</button>
             </form>
         </div>
         <div class="profile-posts">
             <?php
-            // Fetch the user's posts based on the selected option
+            // Fetch the posts based on the selected option
+            $query = "SELECT post_id FROM posts WHERE author = ?";
+
             if ($show == 'posts') {
-                $query = "SELECT post_id, post_title, post_content, post_date, post_likes FROM posts WHERE user_ac_id = ?";
-            } else {
-                $query = "SELECT post_id, post_title, post_content, post_date, post_likes FROM posts WHERE user_ac_id = ? UNION SELECT post_id, post_title, post_content, post_date, post_likes FROM comment WHERE user_ac_id = ?";
+                $query .= " AND post_id_for_comment  IS NULL";
             }
 
-            if (isset($_POST['sort'])) {
-                switch ($_POST['sort']) {
-                    case 'newest':
-                        $query .= " ORDER BY post_date DESC";
-                        break;
-                    case 'oldest':
-                        $query .= " ORDER BY post_date ASC";
-                        break;
-                    case 'most-liked':
-                        $query .= " ORDER BY post_likes DESC";
-                        break;
-                    case 'least-liked':
-                        $query .= " ORDER BY post_likes ASC";
-                        break;
-                    default:
-                        $query .= " ORDER BY post_date DESC";
-                }
-            } else {
-                $query .= " ORDER BY post_date DESC";
+            // Sort the posts based on the selected option
+            switch ($sort) {
+                case 'newest':
+                    $query .= " ORDER BY create_datetime DESC";
+                    break;
+                case 'oldest':
+                    $query .= " ORDER BY create_datetime ASC";
+                    break;
+                case 'most-liked':
+                    $query .= " ORDER BY likes DESC";
+                    break;
+                case 'least-liked':
+                    $query .= " ORDER BY likes ASC";
+                    break;
             }
 
             $stmt = $conn->prepare($query);
-            if ($show == 'posts') {
-                $stmt->bind_param("i", $user_id);
-            } else {
-                $stmt->bind_param("ii", $user_id, $user_id);
-            }
+            $stmt->bind_param("i", $user_id);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
+                // Fetch and display the posts
                 while ($row = $result->fetch_assoc()) {
-                    echo '<div class="profile-post">';
-                    echo '<h3>' . htmlspecialchars($row['post_title'], ENT_QUOTES, 'UTF-8') . '</h3>';
-                    echo '<p>' . htmlspecialchars($row['post_content'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="post-date">' . htmlspecialchars($row['post_date'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="post-likes">' . $row['post_likes'] . ' likes</p>';
-                    echo '<a href="post.php?id=' . $row['post_id'] . '">View Post</a>';
-                    echo '</div>';
+                    displayPostDetails($row['post_id'], $conn);
                 }
             } else {
-                echo "No posts found.";
+                // Display a message if the user has no posts
+                echo "<p>No posts found.</p>";
             }
 
-            $stmt->close();
             ?>
         </div>
     </div>
