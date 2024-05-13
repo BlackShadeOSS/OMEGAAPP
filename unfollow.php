@@ -71,6 +71,37 @@ $stmt->bind_param("ii", $follower_id, $target_id);
 
 if ($stmt->execute()) {
     echo "Unfollowed successfully.";
+
+    $query = "SELECT * FROM follow WHERE";
+    if ($target_type === 'user') {
+        $query .= " user_ac_id = ?";
+    } elseif ($target_type === 'firm') {
+        $query .= " firm_ac_id = ?";
+    } else {
+        echo "Error: Invalid target type.";
+        exit;
+    }
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $target_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $follow_count = $result->num_rows;
+
+    if ($target_type === 'user') {
+        $query = "UPDATE user_account SET followers = ? WHERE user_ac_id = ?";
+    } elseif ($target_type === 'firm') {
+        $query = "UPDATE firm_account SET followers = ? WHERE firm_ac_id = ?";
+    } else {
+        echo "Error: Invalid target type.";
+        exit;
+    }
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $follow_count, $target_id);
+    $stmt->execute();
+    $stmt->close();
+
     // Check if the HTTP_REFERER is set and not empty
     if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
         // Redirect to the previous page

@@ -62,6 +62,20 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $post_id, $user_id);
 
 if ($stmt->execute()) {
+    $stmt->close();
+    echo "Post unliked successfully.";
+    $query = "SELECT likes FROM posts WHERE post_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $post_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $likes = $result->fetch_assoc();
+
+    $query = "UPDATE posts SET likes = ? WHERE post_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $likes['likes'], $post_id);
+    $stmt->execute();
+    $stmt->close();
     echo "Post unliked successfully.";
     if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
         // Redirect to the previous page
@@ -77,5 +91,3 @@ if ($stmt->execute()) {
     echo "<script>setTimeout(function(){ window.location.href = 'post.php?id=" . $post_id . "'; }, 5000);</script>";
     exit;
 }
-
-$stmt->close();

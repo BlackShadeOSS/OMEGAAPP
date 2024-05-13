@@ -88,19 +88,6 @@ function displayPostDetails($postId, $conn)
         echo "<img class='author-avatar' src='uploads/" . htmlspecialchars($post['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Author Avatar'>";
         echo "<span class='author-name'>" . htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8') . "</span>";
         echo "<span class='follower-count'> (" . $post['follower_count'] . " followers)</span>";
-        // if ($post['is_following']) {
-        //     echo '<form action="unfollow.php" method="post" class="follow-button">';
-        //     echo    '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
-        //     echo    '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
-        //     echo    '<button type="submit">Unfollow</button>';
-        //     echo '</form>';
-        // } else {
-        //     echo '<form action="follow.php" method="post" class="follow-button">';
-        //     echo '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
-        //     echo '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
-        //     echo '<button type="submit">Follow</button>';
-        //     echo '</form>';
-        // }
         echo "</div>";
         echo "<a href='post.php?id=" . $postId . "'>";
 

@@ -64,6 +64,19 @@ $stmt->bind_param("ii", $post_id, $user_id);
 if ($stmt->execute()) {
     $stmt->close();
     echo "Post liked successfully.";
+    $query = "SELECT likes FROM posts WHERE post_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $post_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $likes = $result->fetch_assoc();
+
+    $query = "UPDATE posts SET likes = ? WHERE post_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $likes['likes'], $post_id);
+    $stmt->execute();
+    $stmt->close();
+
     if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
         // Redirect to the previous page
         header("Location: " . $_SERVER['HTTP_REFERER']);
