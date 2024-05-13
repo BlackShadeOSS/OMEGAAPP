@@ -4,7 +4,7 @@ session_start();
 
 // Include the database connection file
 require_once 'db_connect.php';
-function displayPostDetails($postId, $conn)
+function displayPostDetails($postId, $conn, $session_id)
 {
     // Prepare and execute the SQL query to fetch the post details
     $query = "SELECT posts.content, posts.file_id,
@@ -12,8 +12,7 @@ function displayPostDetails($postId, $conn)
               user_account.avatar_id,
               user_account.user_ac_id AS author_id,
               'user' AS author_type,
-              COUNT(follow.user_follower_id) AS follower_count,
-              CASE WHEN follow.user_follower_id IS NOT NULL THEN true ELSE false END AS is_following
+              COUNT(follow.user_follower_id) AS follower_count
               FROM posts 
               LEFT JOIN user_account ON posts.author = user_account.user_ac_id 
               LEFT JOIN firm_account ON posts.author_firm = firm_account.firm_ac_id 
@@ -42,7 +41,16 @@ function displayPostDetails($postId, $conn)
         echo "<img class='author-avatar' src='uploads/" . htmlspecialchars($post['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Author Avatar'>";
         echo "<span class='author-name'>" . htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8') . "</span>";
         echo "<span class='follower-count'> (" . $post['follower_count'] . " followers)</span>";
-        if ($post['is_following']) {
+
+        $query = "SELECT COUNT(*) as is_following FROM follow WHERE user_ac_id = ? AND user_follower_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $post['author_id'], $session_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $is_following = $result->fetch_assoc();
+
+
+        if ($is_following['is_following']) {
             echo '<form action="unfollow.php" method="post" class="follow-button">';
             echo    '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
             echo    '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
@@ -133,23 +141,18 @@ function displayPostDetails($postId, $conn)
         <h2>Recent Posts</h2>
         <div class="posts-container">
             <?php
-            // Prepare a select statement to prevent SQL Injection
-            $query = "SELECT posts.post_id, posts.author, posts.content, posts.file_id FROM posts WHERE posts.post_id_for_comment IS NULL ORDER BY posts.post_id DESC LIMIT 25";
-            $stmt = $conn->prepare($query);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($post_id, $post_author, $post_content, $file_name);
-
-            while ($stmt->fetch()) {
-                echo "<div class='post'>";
-                echo "<h3>Post by User ID: $post_author</h3>";
-                echo "<p>$post_content</p>";
-                echo "<img src='uploads/$file_name.webp' alt='Image'>";
-                echo "<a href='post.php?id=$post_id'>View Post</a>";
-                echo "</div>";
+            // Prepare and execute the SQL query to fetch the recent posts
+            $query = "SELECT post_id FROM posts ORDER BY post_id DESC";
+            $result = $conn->query($query);
+            // Check if the query returned any posts
+            if ($result->num_rows > 0) {
+                // Fetch and display the post details
+                while ($row = $result->fetch_assoc()) {
+                    displayPostDetails($row['post_id'], $conn, $_SESSION['id']);
+                }
+            } else {
+                echo "<p>No posts found.</p>";
             }
-
-            $stmt->close();
             ?>
         </div>
 

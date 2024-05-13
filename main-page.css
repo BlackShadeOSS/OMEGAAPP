@@ -22,35 +22,173 @@ body {
     margin-bottom: 20px;
 }
 
-.post {
-    background-color: #252f3a;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
+.follow-button {
+    margin-left: auto;
+}
+
+.follow-button button {
+    background-color: #1da1f2;
     color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.follow-button button:hover {
+    background-color: #1a91da;
+}
+
+.profile-post-selector {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 50px;
+    border: 3px solid #ffffff;
+    border-radius: 10px 10px 0 0;
+    width: 99%;
+}
+
+.profile-post-selector a {
+    color: #ffffff;
+    text-decoration: none;
+    width: 50%;
+    text-align: center;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.profile-post-selector a:first-child {
+    border-top-left-radius: 7.5px;
+}
+
+.profile-post-selector a:last-child {
+    border-top-right-radius: 7.5px;
+}
+
+.profile-post-selector .active {
+    background-color: #1987cc;
+}
+
+.profile-post-selector a:hover {
+    background-color: #1da1f2;
+}
+
+.profile-post-sorter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 3px solid #ffffff;
+    border-top: none;
+    width: 94%;
+}
+
+.profile-posts {
+    display: flex;
+    flex-direction: column;
+    border: 3px solid #ffffff;
+    border-top: none;
+    width: 99.75%;
+    border-radius: 0 0 10px 10px;
+    box-sizing: border-box;
+}
+
+.post {
+    margin: 20px;
+    border-bottom: 3px solid #ffffff;
+}
+
+.post h1,
+.post h2 {
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 20px;
 }
 
 .post p {
-    margin-bottom: 10px;
+    color: #ffffff;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 60px;
 }
 
-.post img {
-    max-width: 100%;
-    height: auto;
+.author-details {
+    display: flex;
+    align-items: center;
+}
+
+.author-avatar {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    margin-right: 10px !important;
+}
+
+.author-name,
+.follower-count {
+    color: #ffffff;
+}
+
+.follower-count {
+    margin-left: 10px;
+}
+
+.image-container {
+    margin-left: 60px;
+}
+
+.image-container img {
+    max-width: 75%;
+    max-height: 250px;
+    object-fit: cover;
     border-radius: 5px;
 }
 
-.post a {
-    color: #1da1f2;
-    text-decoration: none;
+.community-notes-container {
+    margin-top: 20px;
 }
 
-.post a:hover {
-    text-decoration: underline;
+.like-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.like-container button {
+    color: #000000; /* Set the button's text color to black */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+    transition: background-color 0.5s; /* Add a transition effect for the background color */
+}
+
+.like-container button.like {
+    background-color: #ffffff; /* Set the background color for the like button */
+}
+
+.like-container button.unlike {
+    background-color: #ff0000; /* Set the background color for the unlike button */
+}
+
+.like-container button.like:hover {
+    background-color: #ff0000; /* Change the background color on hover */
+}
+
+.like-container button.unlike:hover {
+    background-color: #ffffff; /* Change the background color on hover */
 }
 
 @media (max-width: 600px) {
-    .main-page-container {
+    .post,
+    .comment-form,
+    .comments-container {
         width: 90%;
     }
 }

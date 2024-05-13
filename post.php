@@ -43,8 +43,7 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
               user_account.is_cn_admin,
               user_account.user_ac_id AS author_id,
               'user' AS author_type,
-              COUNT(follow.user_follower_id) AS follower_count,
-              CASE WHEN follow.user_follower_id IS NOT NULL THEN true ELSE false END AS is_following
+              COUNT(follow.user_follower_id) AS follower_count
               FROM posts 
               LEFT JOIN user_account ON posts.author = user_account.user_ac_id 
               LEFT JOIN firm_account ON posts.author_firm = firm_account.firm_ac_id 
@@ -85,7 +84,15 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
         echo "<img class='author-avatar' src='uploads/" . htmlspecialchars($post['avatar_id'] . ".webp", ENT_QUOTES, 'UTF-8') . "' alt='Author Avatar'>";
         echo "<span class='author-name'>" . htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8') . "</span>";
         echo "<span class='follower-count'> (" . $post['follower_count'] . " followers)</span>";
-        if ($post['is_following']) {
+        $query = "SELECT COUNT(*) as is_following FROM follow WHERE user_ac_id = ? AND user_follower_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $post['author_id'], $session_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $is_following = $result->fetch_assoc();
+
+
+        if ($is_following['is_following']) {
             echo '<form action="unfollow.php" method="post" class="follow-button">';
             echo    '<input type="hidden" name="target_id" value="' . $post['author_id'] . '">';
             echo    '<input type="hidden" name="target_type" value="' . $post['author_type'] . '">';
@@ -239,8 +246,7 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
         {
             if (!empty($comments)) {
 
-                $query = "SELECT p1.*, COALESCE(user_account.username, firm_account.firm_name) AS author_name, user_account.avatar_id, COUNT(follow.user_follower_id) AS follower_count,
-                CASE WHEN follow.user_follower_id IS NOT NULL THEN true ELSE false END AS is_following,
+                $query = "SELECT p1.*, COALESCE(user_account.username, firm_account.firm_name) AS author_name, user_account.avatar_id, COUNT(follow.user_follower_id) AS follower_count
                  (SELECT COUNT(*) FROM likes WHERE post_id = p1.post_id) AS likes_count,
                  (SELECT COUNT(*) FROM likes WHERE post_id = p1.post_id AND user_id = ?) AS liked_by_user
                  FROM posts p1
@@ -263,8 +269,14 @@ function displayPostDetails($postId, $conn, $session_id, $is_parent)
                         echo "<p> " . htmlspecialchars($comment['author_name'], ENT_QUOTES, 'UTF-8') . "</p>";
                         echo "<span class='follower-count'>(" . $comment['follower_count'] . " followers)</span>";
 
+                        $query = "SELECT COUNT(*) as is_following FROM follow WHERE user_ac_id = ? AND user_follower_id = ?";
+                        $stmt = $conn->prepare($query);
+                        $stmt->bind_param("ii", $comment['author'], $_SESSION["id"]);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $is_following = $result->fetch_assoc();
 
-                        if ($comment['is_following']) {
+                        if ($is_following['is_following']) {
                             echo "<form action='unfollow.php' method='post' class='follow-button'>";
                             echo "<input type='hidden' name='target_id' value='" . $comment['author'] . "'>";
                             echo "<input type='hidden' name='target_type' value='user'>"; // Adjust based on whether the author is a user or firm
