@@ -4,9 +4,9 @@ require_once 'db_connect.php';
 
 if (isset($_POST['register'])) {
     // Sanitize inputs to prevent XSS
-    $username = htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8');
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
+    $username = strip_tags(htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8'));
+    $password = strip_tags($_POST['password']);
+    $confirm_password = strip_tags($_POST['confirm_password']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $profile_picture = null; // Initialize profile picture as null
 

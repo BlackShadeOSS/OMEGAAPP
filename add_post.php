@@ -15,7 +15,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 // Check if form is submitted
 if (isset($_POST['add_post'])) {
     // Sanitize inputs to prevent XSS
-    $post_content = htmlspecialchars($_POST['post_content'], ENT_QUOTES, 'UTF-8');
+    $post_content = strip_tags(htmlspecialchars($_POST['post_content'], ENT_QUOTES, 'UTF-8'));
     $file_id = null; // Initialize file_id as null
 
     // Check if a file is uploaded
